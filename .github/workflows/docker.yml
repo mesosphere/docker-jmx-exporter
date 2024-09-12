@@ -12,6 +12,8 @@ jobs:
   docker:
     name: Docker
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -38,15 +40,15 @@ jobs:
           TAG_OR_BRANCH: ${{ steps.refortag.outputs.value }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build jmx-exporter
         uses: docker/build-push-action@v2
         with:
-          tags: ghcr.io/banzaicloud/jmx-javaagent:${{ steps.imagetag.outputs.value }}
+          tags: ghcr.io/mesosphere/jmx-javaagent:${{ steps.imagetag.outputs.value }}
           file: Dockerfile
           platforms: ${{ env.PLATFORMS }}
           push: true
